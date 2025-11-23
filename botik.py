@@ -7,7 +7,7 @@ API_HASH = "92893c3fa67e7d33ba6c633ecc29250a"
 SESSION_NAME = "session"
 
 CHANNELS = [
-    brago222",
+    "brago222",
     "starswinner",
     "s27channel",
     "Starkiska",
@@ -45,14 +45,10 @@ CHANNELS = [
 
 BOT_TOKEN = "8310987804:AAFFIRQsLj1eEgRT92HLJMAihcc5XSLRT2w"
 SUBSCRIBERS = [7822675059, 5996959124, 7764827033]
-
-# Теги, на которые нужно реагировать
 KEYWORDS = ["giveaway", "contest", "nft", "gift", "нфт"]
 
 tele_client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
 bot = Bot(token=BOT_TOKEN)
-
-# Множество для хранения уже отправленных постов (chat_id + msg_id)
 sent_posts = set()
 
 @tele_client.on(events.NewMessage(chats=CHANNELS))
@@ -62,13 +58,11 @@ async def handler(event):
         chat_id = event.chat_id
         msg_id = event.message.id
 
-        # Проверяем, был ли уже отправлен этот пост
         post_key = f"{chat_id}_{msg_id}"
         if post_key in sent_posts:
             print(f"Пропущен дубликат: {post_key}")
             return
 
-        # Проверяем наличие кнопок
         has_buttons = False
         if event.message.reply_markup:
             if hasattr(event.message.reply_markup, "buttons") and event.message.reply_markup.buttons:
@@ -76,12 +70,9 @@ async def handler(event):
             elif hasattr(event.message.reply_markup, "rows") and event.message.reply_markup.rows:
                 has_buttons = True
 
-        # Проверяем наличие ключевых тегов
         has_keyword = any(keyword.lower() in text.lower() for keyword in KEYWORDS)
 
-        # Триггерим, если есть кнопки или нужные теги
         if has_buttons or has_keyword:
-            # Формируем ссылку на сообщение
             if hasattr(event.chat, "username") and event.chat.username:
                 link = f"https://t.me/{event.chat.username}/{msg_id}"
             elif str(chat_id).startswith("-100"):
@@ -91,20 +82,17 @@ async def handler(event):
 
             message = f"🎉 Найден пост в {getattr(event.chat, 'title', str(chat_id))}!\n\n{text}\n\n{link}"
 
-            # Отправляем подписчикам
             for user_id in SUBSCRIBERS:
                 try:
                     await bot.send_message(chat_id=user_id, text=message)
                 except Exception as e:
                     print(f"Не удалось отправить пользователю {user_id}: {e}")
 
+            sent_posts.add(post_key)
             print(f"Отправлено сообщение: {link}")
 
-            # Добавляем в множество обработанных постов
-            sent_posts.add(post_key)
-
     except Exception as e:
-        print(f"Ошибка при обработке Telethon-сообщения: {e}")
+        print(f"Ошибка при обработке сообщения: {e}")
 
 
 async def main():
@@ -120,6 +108,6 @@ async def main():
 
     await tele_client.run_until_disconnected()
 
+
 if __name__ == "__main__":
     asyncio.run(main())
-
