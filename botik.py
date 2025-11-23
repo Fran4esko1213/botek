@@ -7,12 +7,40 @@ API_HASH = "92893c3fa67e7d33ba6c633ecc29250a"
 SESSION_NAME = "session"
 
 CHANNELS = [
-    "brago222",
+    brago222",
     "starswinner",
     "s27channel",
     "Starkiska",
     "me4ffa1",
-    # ... остальные каналы
+    "Division_Stars",
+    "MISHAPROSTOI",
+    "Mythic_NFT",
+    "m1ve_nft",
+    "Moon_NFTT",
+    "hlebniyQ",
+    "andrew_gifts",
+    "rep_horoshi",
+    "Steam_newsss",
+    "MarenGift",
+    "zonargifts",
+    "VieYab",
+    "crosssovki",
+    "GoldenGigg",
+    "nftgiftssvsem",
+    "itogistars",
+    "desnity_gift",
+    "tgcryptogift",
+    "celestialstars2",
+    "kevin_nft_tg",
+    "gromodelaaaet",
+    "cat_kind333",
+    "cstars1",
+    "distributionsd",
+    "Tomulovic",
+    "Cryptoznikk13",
+    "Gift_Verse_Nft",
+    "nftTELEGRAMN",
+    "kipkogifts",
 ]
 
 BOT_TOKEN = "8310987804:AAFFIRQsLj1eEgRT92HLJMAihcc5XSLRT2w"
@@ -94,3 +122,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
