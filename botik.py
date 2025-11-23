@@ -7,53 +7,25 @@ API_HASH = "92893c3fa67e7d33ba6c633ecc29250a"
 SESSION_NAME = "session"
 
 CHANNELS = [
-    
     "brago222",
     "starswinner",
     "s27channel",
     "Starkiska",
     "me4ffa1",
-    "Division_Stars",
-    "MISHAPROSTOI",
-    "Mythic_NFT",
-    "m1ve_nft",
-    "Moon_NFTT",
-    "hlebniyQ",
-    "andrew_gifts",
-    "rep_horoshi",
-    "Steam_newsss",
-    "MarenGift",
-    "zonargifts",
-    "VieYab",
-    "crosssovki",
-    "GoldenGigg",
-    "nftgiftssvsem",
-    "itogistars",
-    "desnity_gift",
-    "tgcryptogift",
-    "celestialstars2",
-    "kevin_nft_tg",
-    "gromodelaaaet",
-    "cat_kind333",
-    "cstars1",
-    "distributionsd",
-    "Tomulovic",
-    "Cryptoznikk13",
-    "Gift_Verse_Nft",
-    "nftTELEGRAMN",
-    "kipkogifts",
+    # ... остальные каналы
 ]
 
-tele_client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
 BOT_TOKEN = "8310987804:AAFFIRQsLj1eEgRT92HLJMAihcc5XSLRT2w"
+SUBSCRIBERS = [7822675059, 5996959124, 7764827033]
+
+# Теги, на которые нужно реагировать
+KEYWORDS = ["giveaway", "contest", "nft", "gift", "нфт"]
+
+tele_client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
 bot = Bot(token=BOT_TOKEN)
 
-# Подписчики вручную
-SUBSCRIBERS = [
-    7822675059,
-    5996959124,
-    7764827033
-               ]
+# Множество для хранения уже отправленных постов (chat_id + msg_id)
+sent_posts = set()
 
 @tele_client.on(events.NewMessage(chats=CHANNELS))
 async def handler(event):
@@ -61,6 +33,12 @@ async def handler(event):
         text = event.message.message or ""
         chat_id = event.chat_id
         msg_id = event.message.id
+
+        # Проверяем, был ли уже отправлен этот пост
+        post_key = f"{chat_id}_{msg_id}"
+        if post_key in sent_posts:
+            print(f"Пропущен дубликат: {post_key}")
+            return
 
         # Проверяем наличие кнопок
         has_buttons = False
@@ -70,7 +48,12 @@ async def handler(event):
             elif hasattr(event.message.reply_markup, "rows") and event.message.reply_markup.rows:
                 has_buttons = True
 
-        if has_buttons:  # <-- триггерим на любое сообщение с кнопкой
+        # Проверяем наличие ключевых тегов
+        has_keyword = any(keyword.lower() in text.lower() for keyword in KEYWORDS)
+
+        # Триггерим, если есть кнопки или нужные теги
+        if has_buttons or has_keyword:
+            # Формируем ссылку на сообщение
             if hasattr(event.chat, "username") and event.chat.username:
                 link = f"https://t.me/{event.chat.username}/{msg_id}"
             elif str(chat_id).startswith("-100"):
@@ -78,8 +61,9 @@ async def handler(event):
             else:
                 link = f"https://t.me/c/{chat_id}/{msg_id}"
 
-            message = f"🎉 Найден пост с кнопкой в {getattr(event.chat, 'title', str(chat_id))}!\n\n{text}\n\n{link}"
+            message = f"🎉 Найден пост в {getattr(event.chat, 'title', str(chat_id))}!\n\n{text}\n\n{link}"
 
+            # Отправляем подписчикам
             for user_id in SUBSCRIBERS:
                 try:
                     await bot.send_message(chat_id=user_id, text=message)
@@ -87,6 +71,9 @@ async def handler(event):
                     print(f"Не удалось отправить пользователю {user_id}: {e}")
 
             print(f"Отправлено сообщение: {link}")
+
+            # Добавляем в множество обработанных постов
+            sent_posts.add(post_key)
 
     except Exception as e:
         print(f"Ошибка при обработке Telethon-сообщения: {e}")
@@ -107,18 +94,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
