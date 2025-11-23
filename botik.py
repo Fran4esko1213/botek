@@ -45,10 +45,13 @@ CHANNELS = [
 
 BOT_TOKEN = "8310987804:AAFFIRQsLj1eEgRT92HLJMAihcc5XSLRT2w"
 SUBSCRIBERS = [7822675059, 5996959124, 7764827033]
-KEYWORDS = ["giveaway", "contest", "nft", "gift", "нфт"]
+
+# Слова/теги, которые НЕ хотим отправлять
+BLACKLIST = ["роза", "мишка", "сердечко"]
 
 tele_client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
 bot = Bot(token=BOT_TOKEN)
+
 sent_posts = set()
 
 @tele_client.on(events.NewMessage(chats=CHANNELS))
@@ -63,6 +66,7 @@ async def handler(event):
             print(f"Пропущен дубликат: {post_key}")
             return
 
+        # Проверяем наличие кнопок
         has_buttons = False
         if event.message.reply_markup:
             if hasattr(event.message.reply_markup, "buttons") and event.message.reply_markup.buttons:
@@ -70,9 +74,12 @@ async def handler(event):
             elif hasattr(event.message.reply_markup, "rows") and event.message.reply_markup.rows:
                 has_buttons = True
 
-        has_keyword = any(keyword.lower() in text.lower() for keyword in KEYWORDS)
+        # Проверяем наличие запрещённых слов
+        contains_blacklist = any(word.lower() in text.lower() for word in BLACKLIST)
 
-        if has_buttons or has_keyword:
+        # Триггерим только если есть кнопка и нет запрещённых слов
+        if has_buttons and not contains_blacklist:
+            # Формируем ссылку на сообщение
             if hasattr(event.chat, "username") and event.chat.username:
                 link = f"https://t.me/{event.chat.username}/{msg_id}"
             elif str(chat_id).startswith("-100"):
@@ -111,3 +118,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
